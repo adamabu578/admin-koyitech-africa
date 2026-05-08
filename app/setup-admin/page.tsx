@@ -57,7 +57,7 @@ export default function SetupAdmin() {
       }
 
       toast.success("Admin account created successfully! You can now log in.");
-      router.push("/login");
+      router.push("/");
     } catch (error: any) {
       toast.error(error.message || "Failed to create admin account");
     } finally {

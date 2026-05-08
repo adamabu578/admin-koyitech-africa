@@ -51,7 +51,7 @@ export function Sidebar({ userType }: SidebarProps) {
   ];
 
   const adminLinks = [
-    { path: "/", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/courses", label: "Courses", icon: BookOpen },
     { path: "/tutors", label: "Tutors", icon: GraduationCap },
     { path: "/students", label: "Students", icon: Users },
@@ -94,7 +94,7 @@ export function Sidebar({ userType }: SidebarProps) {
 
         <div className="px-8 mb-10">
           <Link
-            href="/"
+            href="/dashboard"
             className="flex items-center gap-3 text-xl font-black tracking-tighter cursor-pointer"
           >
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white italic text-xs shadow-lg shadow-primary/20">
@@ -140,7 +140,19 @@ export function Sidebar({ userType }: SidebarProps) {
             </button>
           )}
           <button
-            onClick={() => router.push("/")}
+            onClick={async () => {
+              // Sign out from Supabase (optional if used, but good practice)
+              try {
+                const { supabase } = await import("../lib/supabase");
+                await supabase.auth.signOut();
+              } catch (e) {
+                console.error("Supabase signout error", e);
+              }
+              // Clear local storage
+              localStorage.removeItem("currentUser");
+              // Redirect to login page
+              router.push("/");
+            }}
             className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all font-bold text-sm uppercase tracking-widest"
           >
             <LogOut className="w-5 h-5" />

@@ -21,13 +21,13 @@ export default function AdminTutors() {
         if (parsedUser.role === 'admin') {
           setUser(parsedUser);
         } else {
-          router.push("/login");
+          router.push("/");
         }
       } catch (e) {
-        router.push("/login");
+        router.push("/");
       }
     } else {
-      router.push("/login");
+      router.push("/");
     }
   }, [router]);
 
