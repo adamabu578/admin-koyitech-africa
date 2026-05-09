@@ -5,7 +5,7 @@ import { Search, Bell, Mail, Menu, Filter, MoreVertical, Plus } from "lucide-rea
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase } from "../../lib/supabase";
+import { api } from "../../lib/api";
 
 export default function AdminCourses() {
   const router = useRouter();
@@ -35,10 +35,7 @@ export default function AdminCourses() {
     const fetchCourses = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("courses")
-          .select("*, profiles(first_name, last_name)")
-          .order("created_at", { ascending: false });
+        const { data, error } = await api.courses.getAllWithProfiles();
 
         if (error) throw error;
         setCourses(data || []);

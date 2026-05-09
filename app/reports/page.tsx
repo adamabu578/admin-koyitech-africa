@@ -5,7 +5,7 @@ import { Search, Bell, Mail, Menu, Filter, MoreVertical, Download } from "lucide
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase } from "../../lib/supabase";
+import { api } from "../../lib/api";
 
 export default function AdminReports() {
   const router = useRouter();
@@ -35,10 +35,7 @@ export default function AdminReports() {
     const fetchReports = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("reports")
-          .select("*")
-          .order("created_at", { ascending: false });
+        const { data, error } = await api.reports.getAll();
 
         if (error) throw error;
         setReports(data || []);

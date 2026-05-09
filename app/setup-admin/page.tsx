@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { supabase } from "../../lib/supabase";
+import { api } from "../../lib/api";
 
 export default function SetupAdmin() {
   const router = useRouter();
@@ -24,23 +24,13 @@ export default function SetupAdmin() {
 
     try {
       // 1. Sign up the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            firstName,
-            lastName,
-            role: "admin", // Store role in user_metadata
-          },
-        },
-      });
+      const { data: authData, error: authError } = await api.auth.signUpAdmin(email, password, firstName, lastName);
 
       if (authError) throw authError;
 
       // 2. Explicitly update or create the profile with 'admin' role
       if (authData.user) {
-        const { error: profileError } = await supabase.from("profiles").upsert({
+        const { error: profileError } = await api.profiles.upsert({
           id: authData.user.id,
           email: email,
           first_name: firstName,

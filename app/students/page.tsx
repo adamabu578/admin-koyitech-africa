@@ -5,7 +5,7 @@ import { Search, Bell, Mail, Menu, Filter, MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase } from "../../lib/supabase";
+import { api } from "../../lib/api";
 
 export default function AdminStudents() {
   const router = useRouter();
@@ -35,11 +35,7 @@ export default function AdminStudents() {
     const fetchStudents = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("role", "student")
-          .order("created_at", { ascending: false });
+        const { data, error } = await api.profiles.getStudents();
 
         if (error) throw error;
         setStudents(data || []);

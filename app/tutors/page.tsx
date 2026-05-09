@@ -5,7 +5,7 @@ import { Search, Bell, Mail, Menu, Filter, MoreVertical, Plus } from "lucide-rea
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase } from "../../lib/supabase";
+import { api } from "../../lib/api";
 
 export default function AdminTutors() {
   const router = useRouter();
@@ -35,11 +35,7 @@ export default function AdminTutors() {
     const fetchTutors = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .in("role", ["instructor", "pending_instructor"])
-          .order("created_at", { ascending: false });
+        const { data, error } = await api.profiles.getTutors();
 
         if (error) throw error;
         setTutors(data || []);
@@ -176,10 +172,7 @@ export default function AdminTutors() {
                                 <button 
                                   onClick={async () => {
                                     try {
-                                      const { error } = await supabase
-                                        .from('profiles')
-                                        .update({ status: 'active', role: 'instructor' })
-                                        .eq('id', tutor.id);
+                                      const { error } = await api.profiles.updateStatus(tutor.id, 'active', 'instructor');
                                       if (error) throw error;
                                       setTutors(tutors.map(t => t.id === tutor.id ? { ...t, status: 'active', role: 'instructor' } : t));
                                     } catch (err) {
@@ -193,10 +186,7 @@ export default function AdminTutors() {
                                 <button 
                                   onClick={async () => {
                                     try {
-                                      const { error } = await supabase
-                                        .from('profiles')
-                                        .update({ status: 'rejected' })
-                                        .eq('id', tutor.id);
+                                      const { error } = await api.profiles.updateStatus(tutor.id, 'rejected');
                                       if (error) throw error;
                                       setTutors(tutors.map(t => t.id === tutor.id ? { ...t, status: 'rejected' } : t));
                                     } catch (err) {

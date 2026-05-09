@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { api } from "../../lib/api";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -35,20 +36,47 @@ export default function AdminDashboard() {
     }
   }, [router]);
 
+  const [studentCount, setStudentCount] = useState(0);
+  const [tutorCount, setTutorCount] = useState(0);
+  const [courseCount, setCourseCount] = useState(0);
+  const [recentUsers, setRecentUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        const { count: sCount } = await api.profiles.getStudentCount();
+          
+        const { count: tCount } = await api.profiles.getTutorCount();
+
+        const { count: cCount } = await api.courses.getCount();
+
+        setStudentCount(sCount || 0);
+        setTutorCount(tCount || 0);
+        setCourseCount(cCount || 0);
+
+        const { data: recent } = await api.profiles.getRecentUsers(5);
+
+        setRecentUsers(recent || []);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user) {
+      fetchDashboardData();
+    }
+  }, [user]);
+
   if (!user) return null;
 
   const stats = [
-    { label: "Total Students", value: "1,248", icon: Users, bg: "bg-[#4CAF50]", color: "text-[#4CAF50]" },
-    { label: "Total Tutors", value: "32", icon: GraduationCap, bg: "bg-[#FF9800]", color: "text-[#FF9800]" },
-    { label: "Active Courses", value: "11", icon: BookOpen, bg: "bg-[#03A9F4]", color: "text-[#03A9F4]" },
-    { label: "Ongoing Classes", value: "8", icon: Calendar, bg: "bg-[#FFC107]", color: "text-[#FFC107]" },
-  ];
-
-  const recentSignups = [
-    { name: "John Doe", email: "john@example.com", date: "2 mins ago", course: "UI/UX Design" },
-    { name: "Sarah Smith", email: "sarah@example.com", date: "15 mins ago", course: "Data Analysis" },
-    { name: "Mike Johnson", email: "mike@example.com", date: "1 hour ago", course: "Web Development" },
-    { name: "Emily Brown", email: "emily@example.com", date: "3 hours ago", course: "GIS Masterclass" },
+    { label: "Total Students", value: loading ? "..." : studentCount.toString(), icon: Users, bg: "bg-[#4CAF50]", color: "text-[#4CAF50]" },
+    { label: "Total Tutors", value: loading ? "..." : tutorCount.toString(), icon: GraduationCap, bg: "bg-[#FF9800]", color: "text-[#FF9800]" },
+    { label: "Active Courses", value: loading ? "..." : courseCount.toString(), icon: BookOpen, bg: "bg-[#03A9F4]", color: "text-[#03A9F4]" },
+    { label: "Ongoing Classes", value: loading ? "..." : "0", icon: Calendar, bg: "bg-[#FFC107]", color: "text-[#FFC107]" },
   ];
 
   return (
@@ -190,35 +218,51 @@ export default function AdminDashboard() {
                   <table className="w-full text-sm text-left">
                     <thead className="bg-gray-50 text-gray-500 border-b border-gray-100">
                       <tr>
-                        <th className="px-6 py-3 font-medium">Student</th>
-                        <th className="px-6 py-3 font-medium">Course</th>
+                        <th className="px-6 py-3 font-medium">User</th>
+                        <th className="px-6 py-3 font-medium">User Role</th>
                         <th className="px-6 py-3 font-medium text-right">Time</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {recentSignups.map((user, i) => (
-                        <tr key={i} className="border-b border-gray-50 hover:bg-gray-50/50">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
-                                {user.name.split(' ').map(n => n[0]).join('')}
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-800">{user.name}</p>
-                                <p className="text-xs text-gray-500">{user.email}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                              {user.course}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-right text-gray-400 text-xs">
-                            {user.date}
+                      {loading ? (
+                        <tr>
+                          <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
+                            Loading recent signups...
                           </td>
                         </tr>
-                      ))}
+                      ) : recentUsers.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
+                            No recent signups found.
+                          </td>
+                        </tr>
+                      ) : (
+                        recentUsers.map((user, i) => (
+                          <tr key={i} className="border-b border-gray-50 hover:bg-gray-50/50">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs uppercase">
+                                  {user.first_name?.[0] || 'U'}{user.last_name?.[0] || ''}
+                                </div>
+                                <div>
+                                  <p className="font-medium text-gray-800">{user.first_name} {user.last_name}</p>
+                                  <p className="text-xs text-gray-500">{user.email}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                user.role === 'student' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'
+                              }`}>
+                                {user.role === 'student' ? 'Student' : 'Tutor'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right text-gray-400 text-xs">
+                              {new Date(user.created_at).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                   <div className="p-4 border-t border-gray-100 text-center">
