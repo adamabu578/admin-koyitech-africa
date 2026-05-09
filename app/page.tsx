@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "../lib/api";
+import { auth } from "../lib/auth";
 import { useTheme } from "next-themes";
 
 export default function Login() {
@@ -29,7 +30,7 @@ export default function Login() {
     // Optional: also sign out of supabase to ensure clean state
     const clearSupabase = async () => {
       try {
-        await api.auth.signOut();
+        await auth.signOut();
       } catch (e) {
         // ignore errors
       }
@@ -46,7 +47,7 @@ export default function Login() {
     }
 
     setIsLoading(true);
-    const { data, error } = await api.auth.signIn(email, password);
+    const { data, error } = await auth.signIn(email, password);
 
     setIsLoading(false);
 
@@ -63,7 +64,7 @@ export default function Login() {
       // Strict role check for Admin platform
       if (rawRole !== 'admin') {
         toast.error("Access denied. Admin privileges required.");
-        await api.auth.signOut();
+        await auth.signOut();
         return;
       }
 

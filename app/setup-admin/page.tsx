@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "../../lib/api";
+import { auth } from "../../lib/auth";
 
 export default function SetupAdmin() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function SetupAdmin() {
 
     try {
       // 1. Sign up the user
-      const { data: authData, error: authError } = await api.auth.signUpAdmin(email, password, firstName, lastName);
+      const { data: authData, error: authError } = await auth.signUpAdmin(email, password, firstName, lastName);
 
       if (authError) throw authError;
 

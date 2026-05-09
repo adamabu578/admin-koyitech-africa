@@ -1,21 +1,6 @@
 import { supabase } from "./supabase";
 
 export const api = {
-  auth: {
-    signIn: async (email: string, password: string) => 
-      await supabase.auth.signInWithPassword({ email, password }),
-    signOut: async () => 
-      await supabase.auth.signOut(),
-    signUpAdmin: async (email: string, password: string, firstName: string, lastName: string) => 
-      await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { firstName, lastName, role: "admin" },
-        },
-      }),
-  },
-
   profiles: {
     getById: async (id: string) => 
       await supabase.from("profiles").select("role, first_name, last_name, status").eq("id", id).single(),
