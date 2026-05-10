@@ -22,7 +22,6 @@ export default function Login() {
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setTheme("light");
     }
-
     // Clear any existing session when visiting the login page 
     // to force the user to log in again.
     localStorage.removeItem("currentUser");
@@ -153,7 +152,7 @@ export default function Login() {
                 {isLoading ? "Authenticating..." : "Log in to Admin"}
               </button>
 
-              <button
+              {/* <button
                 type="button"
                 onClick={() => {
                   const demoUser = {
@@ -171,7 +170,7 @@ export default function Login() {
                 className="w-full bg-indigo-50 text-indigo-700 py-3.5 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors mt-3"
               >
                 Use Demo Account
-              </button>
+              </button> */}
             </form>
           </motion.div>
         </div>
