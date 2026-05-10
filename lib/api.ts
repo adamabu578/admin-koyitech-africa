@@ -19,7 +19,10 @@ export const api = {
     updateStatus: async (id: string, status: string, role?: string) => {
       const updateData: any = { status };
       if (role) updateData.role = role;
-      return await supabase.from("profiles").update(updateData).eq("id", id);
+      const { data, error } = await supabase.from("profiles").update(updateData).eq("id", id).select();
+      if (error) return { error };
+      if (!data || data.length === 0) return { error: new Error("Update failed. You may not have permission, or you are using a Demo Account.") };
+      return { data, error: null };
     }
   },
 

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { api } from "../../lib/api";
+import { toast } from "sonner";
 
 export default function AdminTutors() {
   const router = useRouter();
@@ -175,8 +176,10 @@ export default function AdminTutors() {
                                       const { error } = await api.profiles.updateStatus(tutor.id, 'active', 'instructor');
                                       if (error) throw error;
                                       setTutors(tutors.map(t => t.id === tutor.id ? { ...t, status: 'active', role: 'instructor' } : t));
-                                    } catch (err) {
+                                      toast.success("Tutor approved successfully!");
+                                    } catch (err: any) {
                                       console.error(err);
+                                      toast.error(err.message || "Failed to approve tutor");
                                     }
                                   }}
                                   className="px-3 py-1 bg-green-500 text-white rounded text-xs font-bold hover:bg-green-600 transition-colors"
@@ -189,8 +192,10 @@ export default function AdminTutors() {
                                       const { error } = await api.profiles.updateStatus(tutor.id, 'rejected');
                                       if (error) throw error;
                                       setTutors(tutors.map(t => t.id === tutor.id ? { ...t, status: 'rejected' } : t));
-                                    } catch (err) {
+                                      toast.success("Tutor rejected!");
+                                    } catch (err: any) {
                                       console.error(err);
+                                      toast.error(err.message || "Failed to reject tutor");
                                     }
                                   }}
                                   className="px-3 py-1 bg-red-500 text-white rounded text-xs font-bold hover:bg-red-600 transition-colors"
